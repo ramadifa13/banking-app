@@ -1,5 +1,3 @@
-// components/Table.js
-
 'use client';
 
 import React from 'react';
@@ -33,10 +31,10 @@ const Table = ({ columns, data, loading, pageIndex, pageSize, setPageIndex, setP
       ) : (
         <table {...getTableProps()} className="min-w-full table-auto border-collapse">
           <thead className="bg-gray-200">
-            {headerGroups.map((headerGroup) => (
-              <tr {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map((column) => (
-                  <th {...column.getHeaderProps()} className="py-2 px-4 border-b text-left">
+            {headerGroups.map((headerGroup, headerGroupIndex) => (
+              <tr {...headerGroup.getHeaderGroupProps()} key={headerGroupIndex}>
+                {headerGroup.headers.map((column, columnIndex) => (
+                  <th {...column.getHeaderProps()} key={columnIndex} className="py-2 px-4 border-b text-left">
                     {column.render('Header')}
                   </th>
                 ))}
@@ -44,12 +42,12 @@ const Table = ({ columns, data, loading, pageIndex, pageSize, setPageIndex, setP
             ))}
           </thead>
           <tbody {...getTableBodyProps()}>
-            {rows.map((row) => {
+            {rows.map((row, rowIndex) => {
               prepareRow(row);
               return (
-                <tr {...row.getRowProps()} className="border-b">
-                  {row.cells.map((cell) => (
-                    <td {...cell.getCellProps()} className="py-2 px-4">
+                <tr {...row.getRowProps()} key={rowIndex} className="border-b">
+                  {row.cells.map((cell, cellIndex) => (
+                    <td {...cell.getCellProps()} key={cellIndex} className="py-2 px-4">
                       {cell.render('Cell')}
                     </td>
                   ))}
@@ -97,8 +95,8 @@ const Table = ({ columns, data, loading, pageIndex, pageSize, setPageIndex, setP
             onChange={(e) => setPageSize(Number(e.target.value))}
             className="px-4 py-2 border rounded-md"
           >
-            {[10, 20, 30].map((size) => (
-              <option key={size} value={size}>
+            {[10, 20, 30].map((size, index) => (
+              <option key={index} value={size}>
                 {size} per page
               </option>
             ))}
