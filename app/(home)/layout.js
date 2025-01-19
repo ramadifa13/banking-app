@@ -66,12 +66,13 @@ const layout = ({ children }) => {
           )}
 
           {role === "customer" && (
+            <>
             <li className="mb-4">
               <a href="/account" className="text-gray-300 hover:text-white">
                 Account
               </a>
             </li>
-          )}
+          
 
           <li className="mb-4">
             <a href="/transaction" className="text-gray-300 hover:text-white">
@@ -83,6 +84,8 @@ const layout = ({ children }) => {
               Report
             </a>
           </li>
+            </>
+          )}
           <li className="mb-4">
             <button
               onClick={handleLogout}

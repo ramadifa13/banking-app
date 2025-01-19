@@ -38,9 +38,9 @@ const AccountFormPage = ({ params }) => {
         try {
           setLoading(true);
           const { data: datas } = await api.get(`/accounts/${id}`);
-          setValue("accountType", datas.accountType);
-          setValue("balance", datas.balance);
-          setFormattedBalance(datas.balance.toLocaleString("id-ID"));
+          setValue("accountType", datas.account.accountType);
+          setValue("balance", datas.account.balance);
+          setFormattedBalance(datas.account.balance.toLocaleString("id-ID"));
           setLoading(false);
         } catch (error) {
           setLoading(false);
@@ -92,14 +92,13 @@ const AccountFormPage = ({ params }) => {
         <div className="flex justify-center">Loading...</div>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Hidden Account Number Field */}
+      
           <input
             id="accountNumber"
             type="hidden"
             {...register("accountNumber")}
           />
 
-          {/* Hidden Customer ID Field */}
           <input
             id="customerId"
             type="hidden"

@@ -4,22 +4,37 @@ import jwt from "jsonwebtoken";
 
 export async function GET(req) {
   try {
-     const token = await getAuthToken();
-      
-        if (!token) {
-          return new Response(JSON.stringify({ error: "Unauthorized" }), {
-            status: 401,
-          });
-        }
+    const token = await getAuthToken(req);
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.userId;
+    if (!token) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+      });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      return new Response(JSON.stringify({ error: "Invalid token" }), {
+        status: 401,
+      });
+    }
+
+    const customerId = decoded.customerId;
+
+    const accounts = await prisma.account.findMany({
+      where: { customerId },
+      select: { id: true },
+    });
+
+    const accountIds = accounts.map(account => account.id);
 
     const totalTransactions = await prisma.transaction.count({
       where: {
         OR: [
-          { fromAccountId: userId },
-          { toAccountId: userId },
+          { fromAccountId: { in: accountIds } },
+          { toAccountId: { in: accountIds } },
         ],
       },
     });

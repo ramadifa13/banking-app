@@ -23,7 +23,7 @@ export async function GET(req) {
     }
     const customerId = decoded.customerId;
 
-    const { page = 1, limit = 10, name = "" } = req.nextUrl.searchParams;
+    const { page = 1, limit = 10 } = req.nextUrl.searchParams;
 
     const pageInt = parseInt(page, 10);
     const limitInt = parseInt(limit, 10);
@@ -35,18 +35,22 @@ export async function GET(req) {
       );
     }
 
-    const where = name
-      ? { customerName: { contains: name, mode: "insensitive" } }
-      : {};
 
     const accounts = await prisma.account.findMany({
-      where: { ...where, customerId },
+      where: { customerId },
       skip: (pageInt - 1) * limitInt,
       take: limitInt,
+      include: {
+        customer: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
 
     const total = await prisma.account.count({
-      where: { ...where, customerId },
+      where: { customerId },
     });
 
     return new Response(JSON.stringify({ accounts, total }), { status: 200 });
@@ -59,14 +63,16 @@ export async function GET(req) {
 }
 
 
+
+
 const generateAccountNumber = (customerId) => {
-  
+
   const customerPrefix = customerId.toString().slice(0, 3);
-  
-  
+
+
   const randomSuffix = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
 
-  
+
   return `${customerPrefix}${randomSuffix}`;
 };
 
@@ -88,9 +94,9 @@ export async function POST(req) {
         status: 401,
       });
     }
-    const customerId = decoded.customerId; 
+    const customerId = decoded.customerId;
 
-    
+
     const { accountType, balance } = await req.json();
 
     if (!accountType || balance === undefined) {
@@ -100,16 +106,16 @@ export async function POST(req) {
       );
     }
 
-    
+
     const accountNumber = generateAccountNumber(customerId);
 
-    
+
     const newAccount = await prisma.account.create({
       data: {
-        accountNumber, 
+        accountNumber,
         accountType,
         balance: parseFloat(balance),
-        customerId, 
+        customerId,
       },
     });
 
@@ -121,3 +127,4 @@ export async function POST(req) {
     });
   }
 }
+ 

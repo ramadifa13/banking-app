@@ -5,81 +5,83 @@ import { showAlert } from "@/components/alert";
 import Table from "@/components/table";
 import api from "@/lib/api";
 
-const AccountPage = () => {
+const TransactionPage = () => {
   const router = useRouter();
-  const [accounts, setAccounts] = useState([]);
+  const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pageCount, setPageCount] = useState(0);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
 
-
-
-  const fetchAccounts = async () => {
+  const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const { data: accountData } = await api.get("/accounts", {
+      const { data: transactionData } = await api.get("/transactions", {
         params: {
           page: pageIndex + 1,
           limit: pageSize,
         },
       });
 
-      setAccounts(accountData.accounts);
-      setPageCount(Math.ceil(accountData.total / pageSize));
+      setTransactions(transactionData.transactions);
+      setPageCount(Math.ceil(transactionData.total / pageSize));
       setLoading(false);
     } catch (error) {
       setLoading(false);
 
       showAlert({
         icon: "error",
-        title: "Error fetching accounts",
+        title: "Error fetching transactions",
         text:
           error.response?.data?.error ||
-          "There was an error fetching account data.",
+          "There was an error fetching transaction data.",
       });
     }
   };
 
   useEffect(() => {
-    fetchAccounts();
+    fetchTransactions();
   }, [pageIndex, pageSize]);
 
   const columns = React.useMemo(
     () => [
       {
-        Header: "Account ID",
+        Header: "Transaction ID",
         accessor: "id",
       },
       {
-        Header: "Customer Name",
-        accessor: (row) => row.customer.name,
+        Header: "From Account",
+        accessor: (row) => row.fromAccountName,
       },
       {
-        Header: "Account Number",
-        accessor: "accountNumber",
+        Header: "To Account",
+        accessor: (row) => row.toAccountName || " - ",
       },
       {
-        Header: "Account Type",
-        accessor: "accountType",
-      },
-      {
-        Header: "Balance",
-        accessor: "balance",
+        Header: "Amount",
+        accessor: "amount",
         Cell: ({ row }) => (
-          <span className="text-right">Rp.{row.original.balance.toLocaleString("id-ID")}</span>
+          <span className="text-right">
+            Rp.{row.original.amount.toLocaleString("id-ID")}
+          </span>
         ),
       },
       {
-        Header: "Actions",
+        Header: "Transaction Type",
+        accessor: "transactionType",
+      },
+      {
+        Header: "Transaction Date",
+        accessor: "transactionDate",
         Cell: ({ row }) => (
-          <button
-            onClick={() => router.push(`/account/${row.original.id}`)}
-            className="text-blue-600 hover:text-blue-800"
-          >
-            Edit
-          </button>
+          <span>
+            {new Date(row.original.transactionDate).toLocaleString("id-ID")}
+          </span>
         ),
+      },
+      {
+        Header: "Status",
+        accessor: "transactionStatus",
       },
     ],
     []
@@ -88,18 +90,18 @@ const AccountPage = () => {
   return (
     <div className="container mx-auto p-8">
       <div className="flex justify-between mb-4">
-        <h2 className="text-2xl font-semibold">Accounts</h2>
+        <h2 className="text-2xl font-semibold">Transactions</h2>
         <button
-          onClick={() => router.push("/account/null")}
+          onClick={() => router.push("/transaction/action")}
           className="bg-blue-600 text-white py-2 px-4 rounded-md"
         >
-          Add Account
+          Add Transaction
         </button>
       </div>
 
       <Table
         columns={columns}
-        data={accounts}
+        data={transactions}
         loading={loading}
         pageIndex={pageIndex}
         pageSize={pageSize}
@@ -111,4 +113,4 @@ const AccountPage = () => {
   );
 };
 
-export default AccountPage;
+export default TransactionPage;
